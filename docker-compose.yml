@@ -229,6 +229,13 @@ services:
       CSRF_COOKIE_SECURE: "false"
       CSRF_TRUSTED_ORIGINS: "https://sentry.michaelfisher.tech,http://localhost,https://localhost"
       SENTRY_API_CSRF_PROTECTION: "false"
+      SENTRY_SESSIONS_AGGREGATOR: "false"
+      SENTRY_SEARCH: "false"
+      SENTRY_EVENTSTREAM: "false"
+      SENTRY_ANALYTICS_BACKEND: "sentry.analytics.backend.dummy.DummyAnalyticsBackend"
+      SENTRY_SESSIONS: "false"
+      SENTRY_METRICS_ENHANCEMENT: "false"
+      SENTRY_PERFORMANCE: "false"
     volumes:
       - sentry-data:/var/lib/sentry/files
     restart: unless-stopped
