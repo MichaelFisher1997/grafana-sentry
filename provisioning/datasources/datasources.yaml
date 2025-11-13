@@ -12,7 +12,7 @@ datasources:
     access: proxy
     url: http://172.17.0.1:9090
     uid: PBFA97CFB590B2093
-    isDefault: true
+    isDefault: false
     editable: true
   - name: Loki
     type: loki
@@ -21,3 +21,18 @@ datasources:
     uid: loki-datasource-uid
     isDefault: false
     editable: true
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: ep-dry-resonance-ab6gxstq-pooler.eu-west-2.aws.neon.tech:5432
+    database: neondb
+    user: neondb_owner
+    secureJsonData:
+      password: npg_yw6ChORTLEU8
+    uid: postgres
+    isDefault: true
+    editable: true
+    jsonData:
+      postgresVersion: 1300
+      timescaledb: false
+      sslmode: require

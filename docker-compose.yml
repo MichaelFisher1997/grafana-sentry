@@ -109,10 +109,11 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_SERVER_ROOT_URL: http://grafana.michaelfisher.tech
+      GF_SERVER_ROOT_URL: http://localhost:3000
       GF_SERVER_HTTP_ADDR: 0.0.0.0
       TZ: Europe/London
       GF_DISABLE_AUTO_PROVISIONING: "false"
+      GF_INSTALL_PLUGINS: "grafana-postgresql-datasource"
     volumes:
       - grafana-data:/var/lib/grafana
       - /home/admin/projects/grafana/provisioning:/etc/grafana/provisioning:ro
