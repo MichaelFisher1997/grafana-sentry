@@ -125,8 +125,106 @@ services:
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
+  # Sentry PostgreSQL Database
+  sentry-postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: sentry
+      POSTGRES_USER: sentry
+      POSTGRES_PASSWORD: sentry_password
+    volumes:
+      - sentry-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentry"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Sentry Redis
+  sentry-redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - sentry-redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Sentry Web Service
+  sentry-web:
+    image: getsentry/sentry:latest
+    depends_on: [sentry-postgres, sentry-redis]
+    command: ["sentry", "run", "web"]
+    environment:
+      SENTRY_SECRET_KEY: your_secret_key_here_change_this_in_production
+      SENTRY_DB_NAME: sentry
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry_password
+      SENTRY_POSTGRES_HOST: sentry-postgres
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_REDIS_HOST: sentry-redis
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+      SENTRY_WEB_HOST: 0.0.0.0
+      SENTRY_WEB_PORT: 9000
+      SENTRY_BASE_URL: https://sentry.michaelfisher.tech
+    volumes:
+      - sentry-data:/var/lib/sentry/files
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sentry.rule=Host(`sentry.michaelfisher.tech`)"
+      - "traefik.http.routers.sentry.entrypoints=https"
+      - "traefik.http.routers.sentry.tls=true"
+      - "traefik.http.services.sentry.loadbalancer.server.port=9000"
+
+  # Sentry Worker
+  sentry-worker:
+    image: getsentry/sentry:latest
+    depends_on: [sentry-postgres, sentry-redis, sentry-web]
+    command: ["sentry", "run", "worker"]
+    environment:
+      SENTRY_SECRET_KEY: your_secret_key_here_change_this_in_production
+      SENTRY_DB_NAME: sentry
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry_password
+      SENTRY_POSTGRES_HOST: sentry-postgres
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_REDIS_HOST: sentry-redis
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+    volumes:
+      - sentry-data:/var/lib/sentry/files
+    restart: unless-stopped
+
+  # Sentry Cron
+  sentry-cron:
+    image: getsentry/sentry:latest
+    depends_on: [sentry-postgres, sentry-redis, sentry-web]
+    command: ["sentry", "run", "cron"]
+    environment:
+      SENTRY_SECRET_KEY: your_secret_key_here_change_this_in_production
+      SENTRY_DB_NAME: sentry
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry_password
+      SENTRY_POSTGRES_HOST: sentry-postgres
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_REDIS_HOST: sentry-redis
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+    volumes:
+      - sentry-data:/var/lib/sentry/files
+    restart: unless-stopped
+
 volumes:
   loki-data:
   loki-wal:
   prometheus-data:
   grafana-data:
+  sentry-postgres-data:
+  sentry-redis-data:
+  sentry-data:

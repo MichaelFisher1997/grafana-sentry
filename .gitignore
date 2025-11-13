@@ -3,11 +3,15 @@ grafana-data/
 loki-data/
 loki-wal/
 prometheus-data/
+sentry-postgres-data/
+sentry-redis-data/
+sentry-data/
 
 # Ignore environment files with secrets
 .env
 .env.local
 docker-compose.override.yml
+sentry/sentry.env
 
 # Ignore logs
 *.log
