@@ -1,0 +1,131 @@
+version: '3.8'
+
+networks:
+  default:
+    external:
+      name: traefik_default
+
+services:
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/config.yml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml:ro
+      - loki-data:/var/loki
+      - loki-wal:/wal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  promtail:
+    image: grafana/promtail:latest
+    depends_on: [loki]
+    command: -config.file=/etc/promtail/config.yml
+    ports:
+      - "9080:9080"
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml:ro
+      - /home/admin/projects/traefik/logs:/traefik/logs:ro
+      - /var/log:/var/log:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    network_mode: host
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/host/root'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    privileged: true
+    devices:
+      - /dev/kmsg
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/host:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    restart: unless-stopped
+
+  process-exporter:
+    image: ncabatoff/process-exporter:latest
+    command:
+      - '--procfs=/host/proc'
+      - '--config.path=/etc/process-exporter/process-exporter.yml'
+    ports:
+      - "9256:9256"
+    volumes:
+      - ./process-exporter/process-exporter.yml:/etc/process-exporter/process-exporter.yml:ro
+      - /proc:/host/proc:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on: [loki, prometheus]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_ROOT_URL: http://grafana.michaelfisher.tech
+      GF_SERVER_HTTP_ADDR: 0.0.0.0
+      TZ: Europe/London
+      GF_DISABLE_AUTO_PROVISIONING: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - /home/admin/projects/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.michaelfisher.tech`)"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+volumes:
+  loki-data:
+  loki-wal:
+  prometheus-data:
+  grafana-data:

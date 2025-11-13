@@ -1,0 +1,40 @@
+# Ignore Docker volumes and runtime data
+grafana-data/
+loki-data/
+loki-wal/
+prometheus-data/
+
+# Ignore Docker compose overrides
+.env.local
+docker-compose.override.yml
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temporary files
+.tmp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.iml
+
+# Ignore backup files
+*.bk
+*.backup
+
+# Ignore node modules (if any)
+node_modules/
+
+# Ignore build artifacts
+dist/
+build/
