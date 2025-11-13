@@ -4,7 +4,8 @@ loki-data/
 loki-wal/
 prometheus-data/
 
-# Ignore Docker compose overrides
+# Ignore environment files with secrets
+.env
 .env.local
 docker-compose.override.yml
 
