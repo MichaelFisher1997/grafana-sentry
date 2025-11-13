@@ -3,6 +3,9 @@ version: '3.8'
 networks:
   monitoring:
     driver: bridge
+  traefik_default:
+    external:
+      name: traefik_default
 
 services:
   loki:
@@ -116,9 +119,7 @@ services:
       - grafana-data:/var/lib/grafana
       - /home/admin/projects/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
-      - monitoring
-    dns:
-      - 127.0.0.11
+      - traefik_default
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
