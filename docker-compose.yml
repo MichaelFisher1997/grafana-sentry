@@ -1,9 +1,8 @@
 version: '3.8'
 
 networks:
-  default:
-    external:
-      name: traefik_default
+  monitoring:
+    driver: bridge
 
 services:
   loki:
@@ -11,11 +10,14 @@ services:
     command: -config.file=/etc/loki/config.yml
     ports:
       - "3100:3100"
-
     volumes:
       - ./loki/config.yml:/etc/loki/config.yml:ro
       - ./loki/data:/var/loki
       - ./loki/wal:/wal
+    networks:
+      - monitoring
+    dns:
+      - 127.0.0.11
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3100/ready"]
@@ -27,17 +29,11 @@ services:
     image: grafana/promtail:latest
     depends_on: [loki]
     command: -config.file=/etc/promtail/config.yml
-    ports:
-      - "9080:9080"
     volumes:
-      - ./promtail/config.yml:/etc/promtail/config.yml:ro
-      - /home/admin/projects/traefik/logs:/traefik/logs:ro
       - /var/log:/var/log:ro
-      - /run/log/journal:/run/log/journal:ro
-      - /var/log/journal:/var/log/journal:ro
-      - /etc/machine-id:/etc/machine-id:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./promtail/config.yml:/etc/promtail/config.yml:ro
+    networks:
+      - monitoring
     restart: unless-stopped
 
   prometheus:
@@ -49,10 +45,11 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
-    network_mode: host
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
+    networks:
+      - monitoring
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/ready"]
@@ -118,6 +115,10 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - /home/admin/projects/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - monitoring
+    dns:
+      - 127.0.0.11
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
