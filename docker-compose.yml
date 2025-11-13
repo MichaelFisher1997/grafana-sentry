@@ -218,24 +218,17 @@ services:
       SENTRY_WEB_PORT: 9000
       SENTRY_BASE_URL: https://sentry.michaelfisher.tech
       SENTRY_API_HOST: https://sentry.michaelfisher.tech
-      SENTRY_CSRF_COOKIE_SECURE: "false"
+      SENTRY_CSRF_COOKIE_SECURE: false
       SENTRY_CSRF_TRUSTED_ORIGINS: "https://sentry.michaelfisher.tech,http://localhost,https://localhost"
       DJANGO_SETTINGS_MODULE: sentry.conf.server
-      SENTRY_USE_SSL: "true"
+      SENTRY_USE_SSL: true
       SENTRY_WEB_DOMAIN: sentry.michaelfisher.tech
       SENTRY_ALLOW_ORIGIN: "*"
-      SENTRY_CORS_ALLOW_ALL_ORIGINS: "true"
-      SENTRY_CORS_ALLOW_CREDENTIALS: "true"
-      CSRF_COOKIE_SECURE: "false"
+      SENTRY_CORS_ALLOW_ALL_ORIGINS: true
+      SENTRY_CORS_ALLOW_CREDENTIALS: true
+      CSRF_COOKIE_SECURE: false
       CSRF_TRUSTED_ORIGINS: "https://sentry.michaelfisher.tech,http://localhost,https://localhost"
-      SENTRY_API_CSRF_PROTECTION: "false"
-      SENTRY_SESSIONS_AGGREGATOR: "false"
-      SENTRY_SEARCH: "false"
-      SENTRY_EVENTSTREAM: "false"
-      SENTRY_ANALYTICS_BACKEND: "sentry.analytics.backend.dummy.DummyAnalyticsBackend"
-      SENTRY_SESSIONS: "false"
-      SENTRY_METRICS_ENHANCEMENT: "false"
-      SENTRY_PERFORMANCE: "false"
+
     volumes:
       - sentry-data:/var/lib/sentry/files
     restart: unless-stopped
@@ -258,9 +251,19 @@ services:
       SENTRY_KAFKA_HOSTS: kafka:29092
       SENTRY_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SENTRY_KAFKA_CLUSTERS: default:kafka:29092
+      SENTRY_KAFKA_DEFAULT_BROKERS: kafka:29092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SENTRY_WEB_HOST: sentry-web
       SENTRY_WEB_PORT: 9000
       SENTRY_BASE_URL: https://sentry.michaelfisher.tech
+      SENTRY_API_CSRF_PROTECTION: false
+      SENTRY_SESSIONS_AGGREGATOR: false
+      SENTRY_SEARCH: false
+      SENTRY_EVENTSTREAM: false
+      SENTRY_ANALYTICS_BACKEND: sentry.analytics.backend.dummy.DummyAnalyticsBackend
+      SENTRY_SESSIONS: false
+      SENTRY_METRICS_ENHANCEMENT: false
+      SENTRY_PERFORMANCE: false
     volumes:
       - sentry-data:/var/lib/sentry/files
     restart: unless-stopped
@@ -286,6 +289,14 @@ services:
       SENTRY_WEB_HOST: sentry-web
       SENTRY_WEB_PORT: 9000
       SENTRY_BASE_URL: https://sentry.michaelfisher.tech
+      SENTRY_API_CSRF_PROTECTION: false
+      SENTRY_SESSIONS_AGGREGATOR: false
+      SENTRY_SEARCH: false
+      SENTRY_EVENTSTREAM: false
+      SENTRY_ANALYTICS_BACKEND: sentry.analytics.backend.dummy.DummyAnalyticsBackend
+      SENTRY_SESSIONS: false
+      SENTRY_METRICS_ENHANCEMENT: false
+      SENTRY_PERFORMANCE: false
     volumes:
       - sentry-data:/var/lib/sentry/files
     restart: unless-stopped
