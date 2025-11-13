@@ -94,15 +94,7 @@
               }
             ]
           ],
-          "table": "users",
-          "timeColumn": "created_at",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "table": "users"
         }
       ],
       "title": "Total Users",
@@ -180,15 +172,7 @@
               }
             ]
           ],
-          "table": "orgs",
-          "timeColumn": "created_at",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "table": "orgs"
         }
       ],
       "title": "Total Organizations",
@@ -376,15 +360,7 @@
               }
             ]
           ],
-          "table": "uploads",
-          "timeColumn": "created_at",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "table": "uploads"
         }
       ],
       "title": "Total Storage Used (GB)",
@@ -462,15 +438,7 @@
               }
             ]
           ],
-          "table": "uploads",
-          "timeColumn": "created_at",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "table": "uploads"
         }
       ],
       "title": "Total Images/Uploads",
@@ -544,15 +512,7 @@
               }
             ]
           ],
-          "table": "orgs",
-          "timeColumn": "created_at",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "table": "orgs"
         }
       ],
       "title": "Free vs Paid Accounts",
